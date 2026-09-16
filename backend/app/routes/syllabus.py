@@ -1,17 +1,68 @@
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from app.schemas.syllabus import SyllabusAnalysis
 from app.services.ai_service import analyze_syllabus
-from app.services.pdf_service import extract_text_from_pdf
+from app.services.document_service import extract_text_from_file
 
-router = APIRouter(prefix="/api/syllabus", tags=["Syllabus"])
 
-@router.post("/analyze", response_model=SyllabusAnalysis)
-async def analyze(file: UploadFile = File(...)) -> SyllabusAnalysis:
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file uploaded.")
-    if file.content_type != "application/pdf" and not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=415, detail="Only PDF files are supported.")
-    data = await file.read()
-    text = extract_text_from_pdf(data)
-    return SyllabusAnalysis.model_validate(analyze_syllabus(text))
+router = APIRouter(
+    prefix="/api/syllabus",
+    tags=["Syllabus"],
+)
+
+
+@router.post(
+    "/analyze",
+    response_model=SyllabusAnalysis,
+)
+async def analyze(
+    file: UploadFile | None = File(None),
+    text: str | None = Form(None),
+) -> SyllabusAnalysis:
+
+    # -------------------------
+    # PASTED TEXT
+    # -------------------------
+
+    if text and text.strip():
+
+        syllabus_text = text.strip()
+
+    # -------------------------
+    # FILE UPLOAD
+    # -------------------------
+
+    elif file:
+
+        if not file.filename:
+            raise HTTPException(
+                status_code=400,
+                detail="No file uploaded.",
+            )
+
+        data = await file.read()
+
+        syllabus_text = extract_text_from_file(
+            data=data,
+            filename=file.filename,
+            content_type=file.content_type,
+        )
+
+    # -------------------------
+    # NOTHING PROVIDED
+    # -------------------------
+
+    else:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Please upload a file or paste syllabus text.",
+        )
+
+    # -------------------------
+    # AI ANALYSIS
+    # -------------------------
+
+    result = analyze_syllabus(syllabus_text)
+
+    return SyllabusAnalysis.model_validate(result)

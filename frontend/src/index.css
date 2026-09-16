@@ -1437,3 +1437,82 @@ button:disabled {
     padding: 22px;
   }
 }
+
+
+
+
+
+/* =========================================
+   SYLLABUS UPLOAD EXPERIENCE
+========================================= */
+
+.upload-types {
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+.upload-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  color: #9aa4b5;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.upload-divider::before,
+.upload-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e7ebf1;
+}
+
+.upload-divider span {
+  padding: 0 4px;
+}
+
+.paste-section {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.paste-section label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #303b55;
+}
+
+.paste-section textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 150px;
+  padding: 14px;
+  border: 1px solid #dfe4eb;
+  border-radius: 14px;
+  background: #fbfcfe;
+  color: #26324d;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  outline: none;
+  transition: 0.18s ease;
+}
+
+.paste-section textarea::placeholder {
+  color: #a0a9b8;
+}
+
+.paste-section textarea:focus {
+  border-color: #202a44;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(32, 42, 68, 0.06);
+}
+
+.paste-section .secondary-button {
+  margin-top: 3px;
+}

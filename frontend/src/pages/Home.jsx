@@ -4,6 +4,7 @@ export default function Home({
   file,
   onFileChange,
   onAnalyze,
+  onPasteAnalyze,
   loading,
 }) {
   return (
@@ -211,8 +212,9 @@ export default function Home({
               file={file}
               onFileChange={onFileChange}
               onAnalyze={onAnalyze}
+              onPasteAnalyze={onPasteAnalyze}
               loading={loading}
-            />
+            />  
 
           </div>
 

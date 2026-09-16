@@ -5,11 +5,19 @@ const api = axios.create({
   timeout: 120000,
 })
 
-export async function analyzeSyllabus(file) {
+export async function analyzeSyllabus(file = null, text = '') {
   const form = new FormData()
-  form.append('file', file)
+
+  if (file) {
+    form.append('file', file)
+  }
+
+  if (text) {
+    form.append('text', text)
+  }
 
   const { data } = await api.post('/syllabus/analyze', form)
+
   return data
 }
 
