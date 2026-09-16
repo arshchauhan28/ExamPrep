@@ -1,37 +1,131 @@
-export default function Navbar({ onHome, onDashboard, onNew }) {
+export default function Navbar({
+  onHome,
+  onDashboard,
+  onNew,
+}) {
+  const scrollTo = (id) => {
+    document
+      .getElementById(id)
+      ?.scrollIntoView({
+        behavior: "smooth",
+      });
+  };
+
+  const handleGetStarted = () => {
+    const upload = document.getElementById("upload");
+
+    if (upload) {
+      upload.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    } else {
+      onNew();
+    }
+  };
+
   return (
-    <header className="nav shell">
-      <button
-        className="brand"
-        onClick={onHome}
-        aria-label="ExamPrep AI home"
-      >
-        <span className="brand-mark">
-          E
-        </span>
+    <header className="new-navbar">
 
-        <span className="brand-text">
-          ExamPrep <span>AI</span>
-        </span>
-      </button>
+      <div className="landing-container navbar-inner">
 
-      <nav className="nav-links">
-        <button onClick={onHome}>
-          Home
-        </button>
-
-        <button onClick={onDashboard}>
-          Dashboard
-        </button>
+        {/* LOGO */}
 
         <button
-          className="nav-cta"
-          onClick={onNew}
+          className="new-brand"
+          onClick={onHome}
         >
-          Start New Syllabus
-          <span>→</span>
+
+          <span className="new-brand-icon">
+            <svg
+              viewBox="0 0 40 40"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+
+              <path
+                d="M20 4L35 12L20 20L5 12L20 4Z"
+                fill="currentColor"
+              />
+
+              <path
+                d="M10 17V26L20 32L30 26V17"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <path
+                d="M35 12V24"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+
+            </svg>
+          </span>
+
+          <span>
+            ExamPrep{" "}
+            <strong>
+              AI
+            </strong>
+          </span>
+
         </button>
-      </nav>
+
+
+        {/* NAV */}
+
+        <nav className="new-nav-links">
+
+          <button
+            className="nav-active"
+            onClick={onHome}
+          >
+            Home
+          </button>
+
+          <button
+            onClick={() =>
+              scrollTo("how-it-works")
+            }
+          >
+            How It Works
+          </button>
+
+          <button
+            onClick={() =>
+              scrollTo("features")
+            }
+          >
+            Features
+          </button>
+
+          <button
+            className="new-nav-cta"
+            onClick={handleGetStarted}
+          >
+            Get Started
+            <span>→</span>
+          </button>
+
+        </nav>
+
+
+        {/* MOBILE */}
+
+        <button
+          className="new-mobile-menu"
+          onClick={handleGetStarted}
+          aria-label="Get started"
+        >
+          ☰
+        </button>
+
+      </div>
+
     </header>
-  )
+  );
 }

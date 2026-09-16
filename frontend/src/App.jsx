@@ -146,14 +146,14 @@ export default function App() {
       <Navbar onHome={() => setPage('home')} onDashboard={dashboard} onNew={clearSession} />
       {error && page !== 'quiz' && <div className="shell"><div className="error-banner top-error">{error}<button onClick={() => setError('')}>×</button></div></div>}
       {page === 'home' && (
-          <Home
-            file={file}
-            onFileChange={selectFile}
-            onAnalyze={analyze}
-            onPasteAnalyze={analyzePastedText}
-            loading={loading === 'syllabus'}
-          />
-        )}
+      <Home
+        file={file}
+        onFileChange={selectFile}
+        onAnalyze={analyze}
+        onPasteAnalyze={analyzePastedText}
+        loading={loading === 'syllabus'}
+      />
+    )}
       {page === 'dashboard' && syllabus && <Dashboard syllabus={syllabus} fileName={fileName} readiness={resultReadiness} onNotes={openNotes} onQuiz={openQuiz} onGenerateAllNotes={generateAllNotes} onGenerateQuiz={createGeneralQuiz} onStartNew={clearSession} bulkLoading={loading === 'all-notes'} quizLoading={loading === 'quiz'} />}
       {page === 'notes' && <Notes selectedTopic={selectedTopic} notes={notes[selectedTopic?.name]} loading={loading === 'notes'} onGenerate={createNotes} onBack={dashboard} />}
       {page === 'quiz' && currentQuiz && <Quiz quiz={currentQuiz} answers={answers} current={currentQuestion} error={error} loading={loading === 'submit'} onSelect={(value) => setAnswers((prev) => ({ ...prev, [currentQuiz.questions[currentQuestion].id]: value }))} onPrevious={() => setCurrentQuestion((c) => Math.max(0, c - 1))} onNext={() => setCurrentQuestion((c) => Math.min(currentQuiz.questions.length - 1, c + 1))} onSubmit={submit} />}

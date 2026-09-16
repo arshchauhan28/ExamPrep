@@ -7,206 +7,356 @@ export default function Home({
   onPasteAnalyze,
   loading,
 }) {
+  const scrollToUpload = () => {
+    document
+      .getElementById("upload")
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+  };
+
+  const scrollToHowItWorks = () => {
+    document
+      .getElementById("how-it-works")
+      ?.scrollIntoView({
+        behavior: "smooth",
+      });
+  };
+
+  const scrollToFeatures = () => {
+    document
+      .getElementById("features")
+      ?.scrollIntoView({
+        behavior: "smooth",
+      });
+  };
+
   return (
-    <main className="home-page">
+    <main className="new-landing-page">
 
       {/* =====================================================
-          HOW IT WORKS
+          HERO
       ===================================================== */}
-      <section className="how-it-works shell">
 
-        <div className="how-heading">
-          <span className="how-eyebrow">
-            HOW IT WORKS
-          </span>
+      <section className="new-hero">
 
-          <h2>
-            From syllabus to{" "}
-            <span>exam-ready.</span>
-          </h2>
+        <div className="landing-container new-hero-grid">
 
-          <p>
-            A simple four-step process to turn your syllabus
-            into a focused study plan.
-          </p>
-        </div>
+          {/* LEFT SIDE */}
 
-        <div className="steps-wrapper">
+          <div className="new-hero-content">
 
-          {/* STEP 1 */}
-          <div className="step-card">
-            <div className="step-number">
-              1
+            <div className="new-hero-badge">
+              <span>✦</span>
+              AI-Powered Exam Preparation
             </div>
 
-            <div className="step-icon">
-              ↑
-            </div>
+            <h1>
+              Turn Your Syllabus
+              <br />
+              Into{" "}
+              <span>
+                Exam-Ready Prep.
+              </span>
+            </h1>
 
-            <h3>
-              Upload Syllabus
-            </h3>
-
-            <p>
-              Upload your syllabus PDF in seconds.
+            <p className="new-hero-description">
+              Upload your study material and let AI create
+              structured notes, smart quizzes, and a
+              personalized study plan to help you score
+              better, faster.
             </p>
+
+            <div className="new-hero-actions">
+
+              <button
+                className="new-primary-button"
+                onClick={scrollToUpload}
+              >
+                Get Started
+                <span>→</span>
+              </button>
+
+              <button
+                className="new-secondary-button"
+                onClick={scrollToHowItWorks}
+              >
+                <span className="play-circle">
+                  ▶
+                </span>
+
+                See How It Works
+              </button>
+
+            </div>
+
+
+            {/* FEATURE HIGHLIGHTS */}
+
+            <div
+              className="new-feature-highlights"
+              id="features"
+            >
+
+              <div className="new-feature-item">
+
+                <div className="new-feature-icon blue">
+                  📄
+                </div>
+
+                <div>
+                  <strong>
+                    AI Notes
+                  </strong>
+
+                  <span>
+                    Well-structured
+                    <br />
+                    study notes
+                  </span>
+                </div>
+
+              </div>
+
+
+              <div className="new-feature-item">
+
+                <div className="new-feature-icon teal">
+                  🎯
+                </div>
+
+                <div>
+                  <strong>
+                    Smart Quizzes
+                  </strong>
+
+                  <span>
+                    Practice with
+                    <br />
+                    AI-generated quizzes
+                  </span>
+                </div>
+
+              </div>
+
+
+              <div className="new-feature-item">
+
+                <div className="new-feature-icon green">
+                  📊
+                </div>
+
+                <div>
+                  <strong>
+                    Readiness Score
+                  </strong>
+
+                  <span>
+                    Know how prepared
+                    <br />
+                    you are
+                  </span>
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
 
 
-          <div className="step-line" />
+          {/* RIGHT SIDE VISUAL */}
+
+          <div className="new-hero-visual">
+
+            <div className="hero-glow" />
+
+            {/* SYLLABUS */}
+
+            <div className="syllabus-card">
+
+              <div className="syllabus-card-header">
+
+                <div className="pdf-small-icon">
+                  PDF
+                </div>
+
+                <div>
+                  <strong>
+                    Syllabus.pdf
+                  </strong>
+
+                  <span />
+                </div>
+
+              </div>
 
 
-          {/* STEP 2 */}
-          <div className="step-card">
-            <div className="step-number">
-              2
+              <div className="syllabus-topics">
+
+                <div>
+                  <b>Unit 1</b>
+                  <small>
+                    Introduction
+                  </small>
+                </div>
+
+                <div>
+                  <b>Unit 2</b>
+                  <small>
+                    Core Concepts
+                  </small>
+                </div>
+
+                <div>
+                  <b>Unit 3</b>
+                  <small>
+                    Applications
+                  </small>
+                </div>
+
+                <div>
+                  <b>Unit 4</b>
+                  <small>
+                    Important Topics
+                  </small>
+                </div>
+
+              </div>
+
             </div>
 
-            <div className="step-icon">
+
+            {/* NOTES */}
+
+            <div className="ai-floating-card notes-card">
+
+              <div className="floating-card-icon blue">
+                ▤
+              </div>
+
+              <div>
+
+                <strong>
+                  AI Notes
+                </strong>
+
+                <span />
+                <span />
+                <span className="short" />
+
+              </div>
+
+            </div>
+
+
+            {/* QUIZ */}
+
+            <div className="ai-floating-card quiz-card">
+
+              <div className="floating-card-icon teal">
+                ✓
+              </div>
+
+              <div>
+
+                <strong>
+                  Quiz
+                </strong>
+
+                <span />
+                <span />
+                <span className="short" />
+
+              </div>
+
+            </div>
+
+
+            {/* READINESS */}
+
+            <div className="readiness-floating-card">
+
+              <strong>
+                Readiness Score
+              </strong>
+
+              <div className="readiness-inner">
+
+                <div className="readiness-circle">
+                  <span>
+                    85%
+                  </span>
+                </div>
+
+                <p>
+                  You're
+                  <br />
+                  almost ready!
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div className="visual-arrow arrow-one">
+              ↗
+            </div>
+
+            <div className="visual-arrow arrow-two">
+              ↗
+            </div>
+
+            <div className="visual-spark spark-one">
               ✦
             </div>
 
-            <h3>
-              AI Organizes Topics
-            </h3>
-
-            <p>
-              Units, topics and subtopics are organized automatically.
-            </p>
-          </div>
-
-
-          <div className="step-line" />
-
-
-          {/* STEP 3 */}
-          <div className="step-card">
-            <div className="step-number">
-              3
+            <div className="visual-spark spark-two">
+              ✦
             </div>
 
-            <div className="step-icon">
-              ▤
+            <div className="handwritten-text">
+              Upload → Learn → Succeed
             </div>
 
-            <h3>
-              Study & Practice
-            </h3>
-
-            <p>
-              Generate notes and practice with exam-style quizzes.
-            </p>
-          </div>
-
-
-          <div className="step-line" />
-
-
-          {/* STEP 4 */}
-          <div className="step-card">
-            <div className="step-number">
-              4
-            </div>
-
-            <div className="step-icon">
-              ◔
-            </div>
-
-            <h3>
-              Check Readiness
-            </h3>
-
-            <p>
-              See your progress and discover what to study next.
-            </p>
           </div>
 
         </div>
+
       </section>
 
 
       {/* =====================================================
-          UPLOAD / HERO
+          UPLOAD
       ===================================================== */}
-      <section className="hero shell">
 
-        <div className="hero-copy">
+      <section
+        id="upload"
+        className="new-upload-section"
+      >
 
-          <div className="hero-badge">
-            <span className="hero-badge-dot" />
-            SMART EXAM PREPARATION
-          </div>
+        <div className="landing-container">
 
-          <h1>
-            Turn Your Syllabus Into A{" "}
-            <span>Smarter Study Plan.</span>
-          </h1>
+          <div className="new-upload-card">
 
-          <p>
-            Upload your syllabus and let ExamPrep AI organize
-            topics, create focused notes, build smart quizzes,
-            and show exactly where you stand.
-          </p>
+            <div className="new-upload-heading">
 
-          <div className="hero-actions">
+              <div className="new-upload-icon">
+                ↑
+              </div>
 
-            <button
-              className="hero-primary-btn"
-              onClick={() =>
-                document
-                  .querySelector(".hero-upload-wrap")
-                  ?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  })
-              }
-            >
-              Get Started
-              <span>→</span>
-            </button>
+              <h2>
+                Upload Study Material
+              </h2>
 
-            <button
-              className="hero-secondary-btn"
-              onClick={() =>
-                document
-                  .querySelector(".how-it-works")
-                  ?.scrollIntoView({
-                    behavior: "smooth",
-                  })
-              }
-            >
-              How It Works
-            </button>
+              <p>
+                Upload your files or paste text to get
+                started with AI-powered preparation.
+              </p>
 
-          </div>
-
-
-          <div className="hero-pills">
-
-            <span>
-              <b>✦</b>
-              AI Notes
-            </span>
-
-            <span>
-              <b>✓</b>
-              Smart Quizzes
-            </span>
-
-            <span>
-              <b>◉</b>
-              Readiness Score
-            </span>
-
-          </div>
-
-        </div>
-
-
-        {/* UPLOAD CARD */}
-        <div className="hero-visual">
-
-          <div className="hero-upload-wrap">
+            </div>
 
             <FileUpload
               file={file}
@@ -214,7 +364,7 @@ export default function Home({
               onAnalyze={onAnalyze}
               onPasteAnalyze={onPasteAnalyze}
               loading={loading}
-            />  
+            />
 
           </div>
 
@@ -224,45 +374,190 @@ export default function Home({
 
 
       {/* =====================================================
-          BOTTOM CTA
+          HOW IT WORKS
       ===================================================== */}
-      <section className="bottom-cta shell">
 
-        <div>
+      <section
+        id="how-it-works"
+        className="new-how-section"
+      >
 
-          <span className="eyebrow">
-            PREPARE WITH CONFIDENCE
-          </span>
+        <div className="landing-container">
 
-          <h2>
-            Study less randomly.
-            <br />
-            <span>Prepare more intelligently.</span>
-          </h2>
+          <div className="new-section-heading">
 
-          <p>
-            Your syllabus already contains the roadmap.
-            ExamPrep AI helps you turn it into action.
-          </p>
+            <div className="new-section-badge">
+              ⚙ Simple Steps, Big Results
+            </div>
+
+            <h2>
+              How It Works
+            </h2>
+
+            <p>
+              Get from your study material to
+              exam-ready in just a few steps.
+            </p>
+
+          </div>
+
+
+          <div className="new-how-grid">
+
+            {/* 1 */}
+
+            <div className="new-how-card">
+
+              <div className="new-step-number blue">
+                1
+              </div>
+
+              <div className="new-how-icon blue-bg">
+                📄
+              </div>
+
+              <h3>
+                Upload
+              </h3>
+
+              <p>
+                Upload your study material
+                using any supported file or
+                paste your text.
+              </p>
+
+            </div>
+
+
+            <div className="new-how-arrow">
+              →
+            </div>
+
+
+            {/* 2 */}
+
+            <div className="new-how-card">
+
+              <div className="new-step-number teal">
+                2
+              </div>
+
+              <div className="new-how-icon teal-bg">
+                🧠
+              </div>
+
+              <h3>
+                AI Organizes
+              </h3>
+
+              <p>
+                Our AI analyzes and structures
+                the content into topics and units.
+              </p>
+
+            </div>
+
+
+            <div className="new-how-arrow">
+              →
+            </div>
+
+
+            {/* 3 */}
+
+            <div className="new-how-card">
+
+              <div className="new-step-number purple">
+                3
+              </div>
+
+              <div className="new-how-icon purple-bg">
+                📖
+              </div>
+
+              <h3>
+                Study & Practice
+              </h3>
+
+              <p>
+                Get detailed notes, chapter-wise
+                quizzes and practice questions.
+              </p>
+
+            </div>
+
+
+            <div className="new-how-arrow">
+              →
+            </div>
+
+
+            {/* 4 */}
+
+            <div className="new-how-card">
+
+              <div className="new-step-number orange">
+                4
+              </div>
+
+              <div className="new-how-icon orange-bg">
+                📊
+              </div>
+
+              <h3>
+                Check Readiness
+              </h3>
+
+              <p>
+                Track your progress with a
+                personalized readiness score.
+              </p>
+
+            </div>
+
+          </div>
 
         </div>
 
+      </section>
 
-        <div className="bottom-cta-badge">
 
-          <span>
-            ✦
-          </span>
+      {/* =====================================================
+          FINAL CTA
+      ===================================================== */}
+
+      <section className="new-final-cta">
+
+        <div className="landing-container">
 
           <div>
-            <strong>
-              ExamPrep AI
-            </strong>
 
-            <small>
-              Your personal study assistant
-            </small>
+            <span>
+              EXAMPREP AI
+            </span>
+
+            <h2>
+              Ready to prepare
+              <br />
+              <strong>
+                smarter?
+              </strong>
+            </h2>
+
+            <p>
+              Upload your study material and let
+              ExamPrep AI build your study plan.
+            </p>
+
           </div>
+
+          <button
+            className="new-primary-button"
+            onClick={scrollToUpload}
+          >
+            Get Started Now
+            <span>→</span>
+          </button>
 
         </div>
 
