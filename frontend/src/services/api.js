@@ -10,10 +10,8 @@ export async function analyzeSyllabus(file = null, text = "") {
 
   if (file) {
     form.append("file", file);
-  }
-
-  if (text) {
-    form.append("text", text);
+  } else if (text.trim()) {
+    form.append("text", text.trim());
   }
 
   const { data } = await api.post("/syllabus/analyze", form);
