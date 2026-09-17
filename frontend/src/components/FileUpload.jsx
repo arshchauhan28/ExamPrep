@@ -2,7 +2,11 @@ import { useRef, useState } from 'react'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 
-const ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.txt', '.png', '.jpg', '.jpeg']
+const ALLOWED_EXTENSIONS = [
+  '.pdf',
+  '.docx',
+  '.txt'
+]
 
 export default function FileUpload({
   file,
@@ -12,6 +16,7 @@ export default function FileUpload({
   loading,
 }) {
   const inputRef = useRef(null)
+
   const [dragging, setDragging] = useState(false)
   const [pasteText, setPasteText] = useState('')
 
@@ -19,13 +24,14 @@ export default function FileUpload({
     if (!candidate) return
 
     const name = candidate.name.toLowerCase()
+
     const validExtension = ALLOWED_EXTENSIONS.some((ext) =>
       name.endsWith(ext)
     )
 
     if (!validExtension) {
       onFileChange({
-        error: 'Please select a PDF, DOCX, TXT, PNG, JPG, or JPEG file.',
+        error: 'Please select a PDF, DOCX, or TXT file.',
       })
       return
     }
@@ -54,74 +60,102 @@ export default function FileUpload({
   return (
     <div className="upload-card">
 
-      {/* FILE UPLOAD */}
-      <div
-        className={`dropzone ${dragging ? 'dragging' : ''}`}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDragging(true)
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setDragging(false)
-          selectFile(e.dataTransfer.files?.[0])
-        }}
-        onClick={() => inputRef.current?.click()}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            inputRef.current?.click()
-          }
-        }}
-      >
-        <div className="upload-icon">📄</div>
+      {/* =========================================
+          FILE UPLOAD SECTION
+      ========================================= */}
 
-        <h3>
-          {file?.name || 'Upload your syllabus'}
-        </h3>
+      <div className="file-upload-section">
 
-        <p>
-          {file
-            ? `${(file.size / 1024 / 1024).toFixed(2)} MB selected`
-            : 'Drag & drop your syllabus here, or browse from your device.'}
-        </p>
+        <label className="upload-section-title">
+          Upload your syllabus
+        </label>
 
-        <span className="browse-button">
-          Browse File
-        </span>
+        <div
+          className={`dropzone ${dragging ? 'dragging' : ''}`}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragging(true)
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault()
+            setDragging(false)
+            selectFile(e.dataTransfer.files?.[0])
+          }}
+          onClick={() => inputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              inputRef.current?.click()
+            }
+          }}
+        >
+          <div className="upload-icon">
+            📄
+          </div>
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".pdf,.docx,.txt,.png,.jpg,.jpeg"
-          hidden
-          onChange={(e) => selectFile(e.target.files?.[0])}
-        />
+          <h3>
+            {file?.name || 'Upload your syllabus'}
+          </h3>
+
+          <p>
+            {file
+              ? `${(file.size / 1024 / 1024).toFixed(2)} MB selected`
+              : 'Drag & drop your syllabus here, or browse from your device.'}
+          </p>
+
+          <span className="browse-button">
+            Browse File
+          </span>
+
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".pdf,.docx,.txt"
+            hidden
+            onChange={(e) =>
+              selectFile(e.target.files?.[0])
+            }
+          />
+        </div>
+
+        {/* Supported formats */}
+
+        <div className="upload-helper upload-types">
+          PDF&nbsp;&nbsp;/&nbsp;&nbsp;DOCX&nbsp;&nbsp;/&nbsp;&nbsp;TXT
+        </div>
+
+        {/* Generate button stays in upper section */}
+
+        <button
+          className="primary-button full-width file-generate-button"
+          disabled={!file || loading}
+          onClick={onAnalyze}
+        >
+          {loading
+            ? 'Generating study material…'
+            : 'Generate Study Material'}
+        </button>
+
       </div>
 
-      {/* SUPPORTED FILE TYPES */}
-      <div className="upload-helper upload-types">
-        PDF&nbsp;&nbsp;/&nbsp;&nbsp;DOCX&nbsp;&nbsp;/&nbsp;&nbsp;TXT&nbsp;&nbsp;/&nbsp;&nbsp;Image
-      </div>
 
-      {/* FILE GENERATE BUTTON */}
-      <button
-        className="primary-button full-width"
-        disabled={!file || loading}
-        onClick={onAnalyze}
-      >
-        {loading ? 'Generating study material…' : 'Generate Study Material'}
-      </button>
+      {/* =========================================
+          DIVIDER
+      ========================================= */}
 
-      {/* DIVIDER */}
       <div className="upload-divider">
         <span>OR</span>
       </div>
 
-      {/* PASTE SYLLABUS */}
+
+      {/* =========================================
+          PASTE TEXT SECTION
+      ========================================= */}
+
       <div className="paste-section">
+
         <label htmlFor="syllabus-text">
           Paste syllabus text
         </label>
@@ -130,9 +164,10 @@ export default function FileUpload({
           id="syllabus-text"
           value={pasteText}
           onChange={(e) => setPasteText(e.target.value)}
-          placeholder="Paste your syllabus here...
+          placeholder={`Paste your syllabus here...
 
 Example:
+
 Unit 1: Data Structures
 - Arrays
 - Linked Lists
@@ -142,7 +177,7 @@ Unit 1: Data Structures
 Unit 2: Algorithms
 - Searching
 - Sorting
-- Graph Algorithms"
+- Graph Algorithms`}
           rows={8}
         />
 
@@ -155,6 +190,7 @@ Unit 2: Algorithms
             ? 'Generating study material…'
             : 'Generate From Text'}
         </button>
+
       </div>
 
     </div>

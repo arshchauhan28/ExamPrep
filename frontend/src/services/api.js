@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://examprep-9p9z.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
   timeout: 120000,
 });
 

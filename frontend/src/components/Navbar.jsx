@@ -1,55 +1,27 @@
-export default function Navbar({
-  onHome,
-  onDashboard,
-  onNew,
-}) {
-  const scrollTo = (id) => {
-    document
-      .getElementById(id)
-      ?.scrollIntoView({
-        behavior: "smooth",
-      });
-  };
-
-  const handleGetStarted = () => {
-    const upload = document.getElementById("upload");
-
-    if (upload) {
-      upload.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    } else {
-      onNew();
-    }
-  };
-
+export default function Navbar({ onHome, onDashboard, onNew }) {
   return (
-    <header className="new-navbar">
+    <header className="navbar">
+      <div className="navbar-inner">
 
-      <div className="landing-container navbar-inner">
-
-        {/* LOGO */}
-
+        {/* Logo */}
         <button
-          className="new-brand"
+          className="navbar-brand"
           onClick={onHome}
+          aria-label="ExamPrep AI home"
         >
-
-          <span className="new-brand-icon">
+          <span className="navbar-logo">
             <svg
-              viewBox="0 0 40 40"
+              viewBox="0 0 48 48"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-
               <path
-                d="M20 4L35 12L20 20L5 12L20 4Z"
+                d="M8 15L24 7L40 15L24 23L8 15Z"
                 fill="currentColor"
               />
 
               <path
-                d="M10 17V26L20 32L30 26V17"
+                d="M13 20V31L24 37L35 31V20"
                 stroke="currentColor"
                 strokeWidth="4"
                 strokeLinecap="round"
@@ -57,75 +29,125 @@ export default function Navbar({
               />
 
               <path
-                d="M35 12V24"
+                d="M40 15V28"
                 stroke="currentColor"
-                strokeWidth="3"
+                strokeWidth="4"
                 strokeLinecap="round"
               />
-
             </svg>
           </span>
 
-          <span>
-            ExamPrep{" "}
-            <strong>
-              AI
-            </strong>
+          <span className="navbar-title">
+            ExamPrep <span>AI</span>
           </span>
-
         </button>
 
+        {/* Navigation */}
+        <nav className="navbar-links">
 
-        {/* NAV */}
-
-        <nav className="new-nav-links">
-
+          {/* Home */}
           <button
-            className="nav-active"
+            className="navbar-link active"
             onClick={onHome}
           >
-            Home
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 10.5L12 3L21 10.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <path
+                d="M5 9.5V21H19V9.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <path
+                d="M9 21V15H15V21"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+
+            <span>Home</span>
           </button>
 
+          {/* Dashboard */}
           <button
-            onClick={() =>
-              scrollTo("how-it-works")
-            }
+            className="navbar-link"
+            onClick={onDashboard}
           >
-            How It Works
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 3H14L19 8V21H6V3Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <path
+                d="M14 3V8H19"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <path
+                d="M9 12H16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+
+              <path
+                d="M9 16H16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            <span>Dashboard</span>
           </button>
 
+          {/* Start New Syllabus */}
           <button
-            onClick={() =>
-              scrollTo("features")
-            }
+            className="navbar-new"
+            onClick={onNew}
           >
-            Features
-          </button>
+            <span className="navbar-plus">
+              +
+            </span>
 
-          <button
-            className="new-nav-cta"
-            onClick={handleGetStarted}
-          >
-            Get Started
-            <span>→</span>
+            <span>Start New Syllabus</span>
           </button>
 
         </nav>
 
-
-        {/* MOBILE */}
-
-        <button
-          className="new-mobile-menu"
-          onClick={handleGetStarted}
-          aria-label="Get started"
-        >
-          ☰
-        </button>
+        {/* AI badge */}
+        <div className="navbar-ai-badge">
+          <span className="navbar-sparkle">✦</span>
+          <span>AI-Powered Learning</span>
+        </div>
 
       </div>
-
     </header>
-  );
+  )
 }
