@@ -1,19 +1,18 @@
 import json
 import os
-import re
 from typing import Any
 
 from fastapi import HTTPException
 
 try:
     from openai import OpenAI
-except ImportError:  # pragma: no cover - dependency is listed in requirements
+except ImportError:
     OpenAI = None
 
 
-# Gemini API through Google's OpenAI-compatible endpoint
-GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-
+# ---------------------------------------------------------
+# AI CLIENT
+# ---------------------------------------------------------
 
 def _client() -> Any:
     api_key = os.getenv("AI_API_KEY")
@@ -34,6 +33,7 @@ def _client() -> Any:
 
     kwargs = {
         "api_key": api_key,
+        "timeout": 90.0,
     }
 
     if base_url:
@@ -41,45 +41,36 @@ def _client() -> Any:
 
     return OpenAI(**kwargs)
 
+
 def _model() -> str:
-    # Default Gemini model
-    return os.getenv("AI_MODEL", "gemini-3.8-flash")
+    return os.getenv("AI_MODEL", "openai/gpt-oss-20b")
 
 
-def _clean_json(text: str) -> str:
-    text = text.strip()
+# ---------------------------------------------------------
+# STRUCTURED AI REQUEST
+# ---------------------------------------------------------
 
-    # Remove markdown code fences such as ```json ... ```
-    fenced = re.search(
-        r"```(?:json)?\s*(.*?)\s*```",
-        text,
-        re.IGNORECASE | re.DOTALL,
-    )
+def _request_json(
+    system: str,
+    user: str,
+    schema_name: str,
+    schema: dict,
+) -> Any:
 
-    if fenced:
-        text = fenced.group(1).strip()
-
-    # Find the beginning of a JSON object or array
-    positions = [
-        idx for idx in [text.find("{"), text.find("[")]
-        if idx >= 0
-    ]
-
-    first = min(positions, default=-1)
-
-    if first > 0:
-        text = text[first:]
-
-    return text
-
-
-def _request_json(system: str, user: str) -> Any:
     client = _client()
 
     try:
         response = client.chat.completions.create(
             model=_model(),
             temperature=0.2,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": schema_name,
+                    "strict": True,
+                    "schema": schema,
+                },
+            },
             messages=[
                 {
                     "role": "system",
@@ -92,10 +83,18 @@ def _request_json(system: str, user: str) -> Any:
             ],
         )
 
+        if not response.choices:
+            raise ValueError("AI returned no choices.")
+
         content = response.choices[0].message.content or ""
 
+        if not content.strip():
+            raise ValueError("AI returned an empty response.")
+
+    except HTTPException:
+        raise
+
     except Exception as exc:
-        # Do not expose provider errors/API details to the browser.
         print(f"AI API error: {exc}")
 
         raise HTTPException(
@@ -104,10 +103,10 @@ def _request_json(system: str, user: str) -> Any:
         ) from exc
 
     try:
-        return json.loads(_clean_json(content))
+        return json.loads(content)
 
-    except (json.JSONDecodeError, TypeError) as exc:
-        print(f"Gemini JSON parsing error: {exc}")
+    except (json.JSONDecodeError, TypeError, ValueError) as exc:
+        print(f"AI JSON parsing error: {exc}")
 
         raise HTTPException(
             status_code=502,
@@ -115,23 +114,88 @@ def _request_json(system: str, user: str) -> Any:
         ) from exc
 
 
+# ---------------------------------------------------------
+# SYLLABUS ANALYSIS
+# ---------------------------------------------------------
+
 def analyze_syllabus(text: str) -> dict:
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "subject": {
+                "type": "string"
+            },
+            "units": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "topics": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "subtopics": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                },
+                                "required": [
+                                    "name",
+                                    "subtopics",
+                                ],
+                                "additionalProperties": False,
+                            },
+                        },
+                    },
+                    "required": [
+                        "name",
+                        "topics",
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": [
+            "subject",
+            "units",
+        ],
+        "additionalProperties": False,
+    }
+
     system = (
-        "You analyze academic syllabi. Return ONLY valid JSON matching this shape: "
-        '{"subject":"string","units":[{"name":"string","topics":[{"name":"string","subtopics":["string"]}]}]}. '
-        "Do not invent topics that are not reasonably supported by the syllabus. "
-        "Keep names concise."
+        "You analyze academic syllabi. "
+        "Extract the subject, units, topics, and subtopics. "
+        "Only include information reasonably supported by the syllabus. "
+        "Keep names concise. "
+        "Every unit must be a separate object inside the units array. "
+        "Every topic must be a separate object inside its unit's topics array."
     )
 
     user = (
-        "Analyze this syllabus and extract the subject, units, topics, and subtopics.\n\n"
+        "Analyze this syllabus and extract its structure.\n\n"
         f"SYLLABUS:\n{text[:50000]}"
     )
 
-    data = _request_json(system, user)
+    data = _request_json(
+        system=system,
+        user=user,
+        schema_name="syllabus_analysis",
+        schema=schema,
+    )
 
     if (
         not isinstance(data, dict)
+        or not isinstance(data.get("subject"), str)
         or not isinstance(data.get("units"), list)
     ):
         raise HTTPException(
@@ -141,28 +205,100 @@ def analyze_syllabus(text: str) -> dict:
 
     return data
 
+
+# ---------------------------------------------------------
+# NOTES GENERATION
+# ---------------------------------------------------------
+
 def generate_notes(topic: str, context: str) -> dict:
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "topic": {
+                "type": "string"
+            },
+            "overview": {
+                "type": "string"
+            },
+            "important_concepts": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+            "definitions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+            "key_points": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+            "examples": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+            "exam_points": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+            "common_mistakes": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+            "quick_revision": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+        },
+        "required": [
+            "topic",
+            "overview",
+            "important_concepts",
+            "definitions",
+            "key_points",
+            "examples",
+            "exam_points",
+            "common_mistakes",
+            "quick_revision",
+        ],
+        "additionalProperties": False,
+    }
+
     system = (
         "You create concise, exam-oriented study notes. "
-        "Return ONLY valid JSON with exactly these keys: "
-        "topic, overview, important_concepts, definitions, key_points, "
-        "examples, exam_points, common_mistakes, quick_revision. "
-
-        "IMPORTANT FORMAT RULES: "
-        "topic must be a string. "
-        "overview must be a single string paragraph. "
-        "All remaining fields must be arrays of short strings. "
-        "Do not return an array for topic or overview. "
+        "Return structured study notes for the requested topic. "
+        "The overview must be a single paragraph. "
+        "All other sections must contain short, useful strings. "
+        "Keep the content suitable for university exam preparation. "
         "Avoid unnecessary verbosity."
     )
 
     user = (
-        f"Create study notes for topic: {topic}.\n"
+        f"Create study notes for topic: {topic}.\n\n"
         "Use this optional syllabus context to stay aligned:\n"
         f"{context[:12000]}"
     )
 
-    data = _request_json(system, user)
+    data = _request_json(
+        system=system,
+        user=user,
+        schema_name="study_notes",
+        schema=schema,
+    )
 
     if not isinstance(data, dict):
         raise HTTPException(
@@ -170,40 +306,15 @@ def generate_notes(topic: str, context: str) -> dict:
             detail="The AI returned an invalid notes structure.",
         )
 
-    # Make the response robust if the model accidentally returns
-    # topic/overview as arrays instead of strings.
-    if isinstance(data.get("topic"), list):
-        data["topic"] = " ".join(str(x) for x in data["topic"])
-
-    if isinstance(data.get("overview"), list):
-        data["overview"] = " ".join(str(x) for x in data["overview"])
-
-    # Ensure required string fields exist
+    # Always use the topic requested by the user.
     data["topic"] = topic
 
-    if not isinstance(data.get("overview"), str):
-        data["overview"] = str(data.get("overview", ""))
-
-    # Ensure all list fields contain strings
-    list_fields = [
-        "important_concepts",
-        "definitions",
-        "key_points",
-        "examples",
-        "exam_points",
-        "common_mistakes",
-        "quick_revision",
-    ]
-
-    for field in list_fields:
-        value = data.get(field, [])
-
-        if not isinstance(value, list):
-            value = [value]
-
-        data[field] = [str(item) for item in value]
-
     return data
+
+
+# ---------------------------------------------------------
+# QUIZ GENERATION
+# ---------------------------------------------------------
 
 def generate_quiz(
     topic: str,
@@ -211,27 +322,73 @@ def generate_quiz(
     difficulty: str,
     context: str,
 ) -> dict:
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "questions": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "question": {
+                            "type": "string"
+                        },
+                        "options": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                        },
+                        "correct_answer": {
+                            "type": "integer"
+                        },
+                        "explanation": {
+                            "type": "string"
+                        },
+                    },
+                    "required": [
+                        "question",
+                        "options",
+                        "correct_answer",
+                        "explanation",
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": [
+            "questions",
+        ],
+        "additionalProperties": False,
+    }
+
     system = (
         "You create exam-quality multiple choice quizzes. "
-        "Return ONLY valid JSON with key 'questions'. "
-        "Each question must have: question (string), "
-        "options (array of exactly 4 strings), "
-        "correct_answer (integer 0-3), "
-        "explanation (string). "
-        "Exactly one option is correct. "
-        "No duplicate questions. "
-        "Mix conceptual and application-based questions."
+        "Create exactly the requested number of questions. "
+        "Each question must contain exactly four answer options. "
+        "The correct_answer field must be an integer from 0 to 3 "
+        "representing the index of the correct option. "
+        "Exactly one option must be correct. "
+        "Do not create duplicate questions. "
+        "Mix conceptual and application-based questions. "
+        "Provide a concise explanation for every answer."
     )
 
     user = (
         f"Topic: {topic}\n"
         f"Difficulty: {difficulty}\n"
-        f"Number of questions: {number_of_questions}\n"
+        f"Number of questions: {number_of_questions}\n\n"
         "Optional syllabus context:\n"
         f"{context[:12000]}"
     )
 
-    data = _request_json(system, user)
+    data = _request_json(
+        system=system,
+        user=user,
+        schema_name="quiz_generation",
+        schema=schema,
+    )
 
     questions = (
         data.get("questions")
@@ -248,20 +405,29 @@ def generate_quiz(
             detail="The AI did not return the requested number of quiz questions.",
         )
 
-    for q in questions:
+    for question in questions:
+
         if (
-            not isinstance(q, dict)
-            or not isinstance(q.get("question"), str)
-            or not isinstance(q.get("options"), list)
-            or len(q["options"]) != 4
-            or not all(isinstance(option, str) for option in q["options"])
-            or not isinstance(q.get("correct_answer"), int)
-            or q["correct_answer"] not in range(4)
-            or not isinstance(q.get("explanation"), str)
+            not isinstance(question, dict)
+            or not isinstance(question.get("question"), str)
+            or not question.get("question", "").strip()
+            or not isinstance(question.get("options"), list)
+            or len(question["options"]) != 4
+            or not all(
+                isinstance(option, str) and option.strip()
+                for option in question["options"]
+            )
+            or len(set(question["options"])) != 4
+            or not isinstance(question.get("correct_answer"), int)
+            or question["correct_answer"] not in range(4)
+            or not isinstance(question.get("explanation"), str)
+            or not question.get("explanation", "").strip()
         ):
             raise HTTPException(
                 status_code=502,
                 detail="The AI returned an invalid quiz question structure.",
             )
 
-    return {"questions": questions}
+    return {
+        "questions": questions
+    }

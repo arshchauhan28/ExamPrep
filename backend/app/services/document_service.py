@@ -1,12 +1,94 @@
 from io import BytesIO
 
 from fastapi import HTTPException
-
-import fitz
+import pymupdf
 from docx import Document
 
 
 MAX_FILE_BYTES = 10 * 1024 * 1024
+SUPPORTED_EXTENSIONS = {"pdf", "docx", "txt"}
+
+
+def _get_extension(filename: str) -> str:
+    if not filename or "." not in filename:
+        return ""
+
+    return filename.rsplit(".", 1)[-1].lower().strip()
+
+
+def _extract_pdf(data: bytes) -> str:
+    # A normal PDF file starts with the %PDF signature.
+    if not data.startswith(b"%PDF"):
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded file does not appear to be a valid PDF.",
+        )
+
+    document = pymupdf.open(
+        stream=data,
+        filetype="pdf",
+    )
+
+    chunks = []
+
+    try:
+        for page in document:
+            page_text = page.get_text("text").strip()
+
+            if page_text:
+                chunks.append(page_text)
+
+    finally:
+        document.close()
+
+    return "\n".join(chunks).strip()
+
+
+def _extract_docx(data: bytes) -> str:
+    # DOCX files are ZIP-based and normally start with the PK signature.
+    if not data.startswith(b"PK"):
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded file does not appear to be a valid DOCX file.",
+        )
+
+    document = Document(BytesIO(data))
+
+    chunks = []
+
+    # Extract normal paragraphs.
+    for paragraph in document.paragraphs:
+        paragraph_text = paragraph.text.strip()
+
+        if paragraph_text:
+            chunks.append(paragraph_text)
+
+    # Extract text stored inside tables.
+    for table in document.tables:
+        for row in table.rows:
+            cells = []
+
+            for cell in row.cells:
+                cell_text = cell.text.strip()
+
+                if cell_text:
+                    cells.append(cell_text)
+
+            if cells:
+                chunks.append(" | ".join(cells))
+
+    return "\n".join(chunks).strip()
+
+
+def _extract_txt(data: bytes) -> str:
+    try:
+        return data.decode("utf-8-sig").strip()
+
+    except UnicodeDecodeError:
+        raise HTTPException(
+            status_code=400,
+            detail="The TXT file must use UTF-8 text encoding.",
+        )
 
 
 def extract_text_from_file(
@@ -27,68 +109,30 @@ def extract_text_from_file(
             detail="File is too large. Maximum size is 10 MB.",
         )
 
-    extension = filename.lower().rsplit(".", 1)[-1]
+    extension = _get_extension(filename)
+
+    if extension not in SUPPORTED_EXTENSIONS:
+        raise HTTPException(
+            status_code=415,
+            detail="Unsupported file type. Please upload PDF, DOCX, or TXT.",
+        )
 
     try:
-
-        # -------------------------
-        # PDF
-        # -------------------------
         if extension == "pdf":
+            text = _extract_pdf(data)
 
-            document = fitz.open(
-                stream=data,
-                filetype="pdf",
-            )
-
-            chunks = []
-
-            try:
-                for page in document:
-                    chunks.append(page.get_text("text"))
-            finally:
-                document.close()
-
-            text = "\n".join(chunks).strip()
-
-        # -------------------------
-        # DOCX
-        # -------------------------
         elif extension == "docx":
-
-            document = Document(BytesIO(data))
-
-            paragraphs = [
-                paragraph.text
-                for paragraph in document.paragraphs
-                if paragraph.text.strip()
-            ]
-
-            text = "\n".join(paragraphs).strip()
-
-        # -------------------------
-        # TXT
-        # -------------------------
-        elif extension == "txt":
-
-            text = data.decode(
-                "utf-8",
-                errors="ignore",
-            ).strip()
+            text = _extract_docx(data)
 
         else:
-            raise HTTPException(
-                status_code=415,
-                detail=(
-                    "Unsupported file type. "
-                    "Please upload PDF, DOCX, or TXT."
-                ),
-            )
+            text = _extract_txt(data)
 
     except HTTPException:
         raise
 
     except Exception as exc:
+        # Log the technical error on the backend without exposing
+        # implementation details to the browser.
         print(f"Document extraction error: {exc}")
 
         raise HTTPException(

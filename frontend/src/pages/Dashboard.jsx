@@ -11,7 +11,6 @@ export default function Dashboard({
 }) {
   return (
     <main className="shell page-space">
-
       <div className="page-heading">
         <div>
           <span className="eyebrow">
@@ -36,34 +35,33 @@ export default function Dashboard({
       {readiness && (
         <ReadinessCard
           readiness={readiness}
-          onWeakTopics={() =>
-            onQuiz({ name: readiness.weak[0] })
-          }
+          onWeakTopics={() => {
+            if (readiness.weak?.length) {
+              onQuiz({
+                name: readiness.weak[0],
+              })
+            }
+          }}
         />
       )}
 
       <section className="section-block">
-
         <div className="section-heading">
           <div>
             <span className="eyebrow">
               AI analysis
             </span>
 
-            <h2>
-              Topics Detected
-            </h2>
+            <h2>Topics Detected</h2>
           </div>
         </div>
 
         <div className="units">
-
           {syllabus.units.map((unit) => (
             <section
               className="unit"
               key={unit.name}
             >
-
               <div className="unit-title">
                 <span>
                   {unit.name}
@@ -75,7 +73,6 @@ export default function Dashboard({
               </div>
 
               <div className="topic-list">
-
                 {unit.topics.map((topic) => (
                   <TopicCard
                     key={topic.name}
@@ -84,16 +81,11 @@ export default function Dashboard({
                     onQuiz={onQuiz}
                   />
                 ))}
-
               </div>
-
             </section>
           ))}
-
         </div>
-
       </section>
-
     </main>
   )
 }
