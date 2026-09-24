@@ -124,7 +124,7 @@ def analyze_syllabus(text: str) -> dict:
         "type": "object",
         "properties": {
             "subject": {
-                "type": "string"
+                "type": "string",
             },
             "units": {
                 "type": "array",
@@ -132,7 +132,7 @@ def analyze_syllabus(text: str) -> dict:
                     "type": "object",
                     "properties": {
                         "name": {
-                            "type": "string"
+                            "type": "string",
                         },
                         "topics": {
                             "type": "array",
@@ -140,13 +140,13 @@ def analyze_syllabus(text: str) -> dict:
                                 "type": "object",
                                 "properties": {
                                     "name": {
-                                        "type": "string"
+                                        "type": "string",
                                     },
                                     "subtopics": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
-                                        }
+                                            "type": "string",
+                                        },
                                     },
                                 },
                                 "required": [
@@ -216,51 +216,51 @@ def generate_notes(topic: str, context: str) -> dict:
         "type": "object",
         "properties": {
             "topic": {
-                "type": "string"
+                "type": "string",
             },
             "overview": {
-                "type": "string"
+                "type": "string",
             },
             "important_concepts": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
                 },
             },
             "definitions": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
                 },
             },
             "key_points": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
                 },
             },
             "examples": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
                 },
             },
             "exam_points": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
                 },
             },
             "common_mistakes": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
                 },
             },
             "quick_revision": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": "string",
                 },
             },
         },
@@ -306,7 +306,6 @@ def generate_notes(topic: str, context: str) -> dict:
             detail="The AI returned an invalid notes structure.",
         )
 
-    # Always use the topic requested by the user.
     data["topic"] = topic
 
     return data
@@ -332,19 +331,22 @@ def generate_quiz(
                     "type": "object",
                     "properties": {
                         "question": {
-                            "type": "string"
+                            "type": "string",
                         },
                         "options": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
                             },
+                            "minItems": 4,
+                            "maxItems": 4,
                         },
                         "correct_answer": {
-                            "type": "integer"
+                            "type": "integer",
+                            "enum": [0, 1, 2, 3],
                         },
                         "explanation": {
-                            "type": "string"
+                            "type": "string",
                         },
                     },
                     "required": [
@@ -366,9 +368,9 @@ def generate_quiz(
     system = (
         "You create exam-quality multiple choice quizzes. "
         "Create exactly the requested number of questions. "
-        "Each question must contain exactly four answer options. "
-        "The correct_answer field must be an integer from 0 to 3 "
-        "representing the index of the correct option. "
+        "Every question must have exactly four different answer options. "
+        "The correct_answer must be exactly one of: 0, 1, 2, or 3. "
+        "The number represents the zero-based index of the correct option. "
         "Exactly one option must be correct. "
         "Do not create duplicate questions. "
         "Mix conceptual and application-based questions. "
@@ -429,5 +431,5 @@ def generate_quiz(
             )
 
     return {
-        "questions": questions
+        "questions": questions,
     }

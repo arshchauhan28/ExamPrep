@@ -1,5 +1,6 @@
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
+from app.rate_limiter import limiter
 from app.schemas.syllabus import SyllabusAnalysis
 from app.services.ai_service import analyze_syllabus
 from app.services.document_service import extract_text_from_file
@@ -15,7 +16,9 @@ router = APIRouter(
     "/analyze",
     response_model=SyllabusAnalysis,
 )
+@limiter.limit("5/minute")
 async def analyze(
+    request: Request,
     file: UploadFile | None = File(None),
     text: str | None = Form(None),
 ) -> SyllabusAnalysis:
@@ -25,7 +28,6 @@ async def analyze(
     # -------------------------
 
     if text and text.strip():
-
         syllabus_text = text.strip()
 
     # -------------------------
@@ -33,7 +35,6 @@ async def analyze(
     # -------------------------
 
     elif file:
-
         if not file.filename:
             raise HTTPException(
                 status_code=400,
@@ -53,7 +54,6 @@ async def analyze(
     # -------------------------
 
     else:
-
         raise HTTPException(
             status_code=400,
             detail="Please upload a file or paste syllabus text.",
