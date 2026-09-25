@@ -3826,20 +3826,15 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-
   width: 100%;
   padding: 16px 18px;
-
   border: 1px solid #dbe4f0;
   border-radius: 14px;
-
   background: white;
   color: #1e293b;
-
   font: inherit;
   font-weight: 600;
   text-align: left;
-
   cursor: pointer;
 
   transition:
@@ -3875,13 +3870,10 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-
   margin-top: 24px;
   padding: 20px 22px;
-
   border: 1px solid #bfdbfe;
   border-radius: 18px;
-
   background: #eff6ff;
 }
 
@@ -3914,7 +3906,6 @@ button:disabled {
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-
   margin-bottom: 24px;
 }
 
@@ -3936,11 +3927,10 @@ button:disabled {
 
 .mindmap-canvas {
   width: 100%;
-
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: hidden;
 
-  padding: 50px;
+  padding: 80px 70px;
 
   border: 1px solid #dbe4f0;
   border-radius: 24px;
@@ -3957,160 +3947,19 @@ button:disabled {
 
 
 /* =========================================================
-   ROOT
+   TREE
    ========================================================= */
 
-.mindmap-level-0 {
+.mindmap-tree {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
 
-  width: 100%;
   min-width: max-content;
 }
 
-.mindmap-type-root > .mindmap-card {
-  padding: 18px 30px;
-
-  border: 2px solid #2563eb;
-  border-radius: 16px;
-
-  background: #eff6ff;
-  color: #1d4ed8;
-
-  font-size: 18px;
-  font-weight: 700;
-
-  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.12);
-}
-
 
 /* =========================================================
-   ROOT → CONCEPTS
-   ========================================================= */
-
-.mindmap-children-root {
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(230px, 1fr));
-
-  gap: 22px;
-
-  width: min(1100px, 100%);
-
-  margin-top: 34px;
-}
-
-
-/* =========================================================
-   CONCEPT
-   ========================================================= */
-
-.mindmap-type-concept {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  min-width: 230px;
-  max-width: 280px;
-
-  padding: 16px;
-
-  border: 1px solid #bfdbfe;
-  border-radius: 18px;
-
-  background: rgba(239, 246, 255, 0.75);
-}
-
-.mindmap-type-concept > .mindmap-card {
-  padding: 13px 15px;
-
-  border-radius: 12px;
-
-  background: #dbeafe;
-  border: 1px solid #93c5fd;
-
-  color: #1e3a8a;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  text-align: center;
-}
-
-
-/* =========================================================
-   CONCEPT → SUBTOPICS
-   ========================================================= */
-
-.mindmap-children-concept {
-  display: flex;
-  flex-direction: column;
-
-  gap: 9px;
-
-  margin-top: 14px;
-}
-
-
-/* =========================================================
-   SUBTOPIC
-   ========================================================= */
-
-.mindmap-type-subtopic > .mindmap-card {
-  padding: 10px 13px;
-
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-
-  background: #ffffff;
-  color: #334155;
-
-  font-size: 13px;
-  font-weight: 600;
-
-  text-align: left;
-}
-
-
-/* =========================================================
-   SUBTOPIC → DETAILS
-   ========================================================= */
-
-.mindmap-children-subtopic {
-  display: flex;
-  flex-wrap: wrap;
-
-  gap: 6px;
-
-  margin-top: 7px;
-  padding-left: 8px;
-}
-
-
-/* =========================================================
-   DETAILS
-   ========================================================= */
-
-.mindmap-type-detail > .mindmap-card {
-  min-width: auto;
-
-  padding: 5px 8px;
-
-  border: 1px solid #e2e8f0;
-  border-radius: 7px;
-
-  background: #f8fafc;
-  color: #64748b;
-
-  font-size: 11px;
-  font-weight: 500;
-}
-
-
-/* =========================================================
-   GENERAL NODE RESET
+   ALL NODES
    ========================================================= */
 
 .mindmap-node {
@@ -4119,7 +3968,265 @@ button:disabled {
 }
 
 .mindmap-card {
+  position: relative;
   box-sizing: border-box;
+  z-index: 2;
+}
+
+
+/* =========================================================
+   ROOT NODE
+   ========================================================= */
+
+.mindmap-level-0 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mindmap-type-root > .mindmap-card {
+  min-width: 220px;
+
+  padding: 18px 30px;
+
+  border: 3px solid #2563eb;
+  border-radius: 18px;
+
+  background: #eff6ff;
+  color: #1d4ed8;
+
+  font-size: 19px;
+  font-weight: 800;
+  text-align: center;
+
+  box-shadow:
+    0 12px 30px rgba(37, 99, 235, 0.16);
+}
+
+
+/* =========================================================
+   ROOT → CONCEPTS CONNECTOR
+   ========================================================= */
+
+.mindmap-level-0 > .mindmap-children {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+  gap: 70px;
+
+  margin-top: 70px;
+}
+
+
+/* Vertical line from ROOT */
+
+.mindmap-level-0 > .mindmap-children::before {
+  content: "";
+
+  position: absolute;
+
+  top: -70px;
+  left: 50%;
+
+  width: 2px;
+  height: 70px;
+
+  background: #93c5fd;
+}
+
+
+/* Horizontal connector between concepts */
+
+.mindmap-level-0 > .mindmap-children::after {
+  content: "";
+
+  position: absolute;
+
+  top: -35px;
+
+  left: 50%;
+  right: 50%;
+
+  width: calc(100% - 70px);
+
+  transform: translateX(-50%);
+
+  height: 2px;
+
+  background: #93c5fd;
+}
+
+
+/* =========================================================
+   CONCEPT NODES
+   ========================================================= */
+
+.mindmap-type-concept {
+  width: 240px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  position: relative;
+}
+
+
+/* Line from horizontal connector to concept */
+
+.mindmap-type-concept::before {
+  content: "";
+
+  position: absolute;
+
+  top: -35px;
+  left: 50%;
+
+  width: 2px;
+  height: 35px;
+
+  transform: translateX(-50%);
+
+  background: #93c5fd;
+}
+
+
+.mindmap-type-concept > .mindmap-card {
+  width: 100%;
+
+  padding: 15px 18px;
+
+  border: 2px solid #60a5fa;
+  border-radius: 15px;
+
+  background: #dbeafe;
+  color: #1e3a8a;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  text-align: center;
+
+  box-shadow:
+    0 6px 18px rgba(37, 99, 235, 0.1);
+}
+
+
+/* =========================================================
+   CONCEPT → SUBTOPICS
+   ========================================================= */
+
+.mindmap-type-concept > .mindmap-children {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  margin-top: 28px;
+}
+
+
+/* Vertical branch */
+
+.mindmap-type-concept > .mindmap-children::before {
+  content: "";
+
+  position: absolute;
+
+  top: -28px;
+  left: 50%;
+
+  width: 2px;
+  height: 28px;
+
+  transform: translateX(-50%);
+
+  background: #bfdbfe;
+}
+
+
+/* =========================================================
+   SUBTOPIC
+   ========================================================= */
+
+.mindmap-type-subtopic {
+  position: relative;
+
+  width: 100%;
+}
+
+
+/* Branch line going into subtopic */
+
+.mindmap-type-subtopic::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 50%;
+
+  width: 18px;
+  height: 2px;
+
+  background: #bfdbfe;
+}
+
+
+.mindmap-type-subtopic > .mindmap-card {
+  margin-left: 18px;
+
+  padding: 10px 13px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+
+  background: white;
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  box-shadow:
+    0 3px 10px rgba(15, 23, 42, 0.04);
+}
+
+
+/* =========================================================
+   SUBTOPIC → DETAILS
+   ========================================================= */
+
+.mindmap-type-subtopic > .mindmap-children {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin-top: 8px;
+  margin-left: 28px;
+}
+
+
+/* =========================================================
+   DETAIL
+   ========================================================= */
+
+.mindmap-type-detail > .mindmap-card {
+  padding: 6px 9px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  background: #f8fafc;
+  color: #64748b;
+
+  font-size: 11px;
+  font-weight: 500;
 }
 
 
@@ -4152,22 +4259,23 @@ button:disabled {
     align-items: stretch;
   }
 
+  /*
+     IMPORTANT:
+     Don't turn the mind map into a single-column layout.
+     Keep it horizontally scrollable so the connections
+     remain visible.
+  */
+
   .mindmap-canvas {
-    padding: 28px 20px;
+    padding: 70px 40px;
     border-radius: 18px;
   }
 
-  .mindmap-children-root {
-    grid-template-columns: 1fr;
-    width: 100%;
+  .mindmap-level-0 > .mindmap-children {
+    gap: 45px;
   }
 
   .mindmap-type-concept {
-    width: 100%;
-    max-width: none;
-  }
-
-  .mindmap-type-root > .mindmap-card {
-    font-size: 16px;
+    width: 210px;
   }
 }

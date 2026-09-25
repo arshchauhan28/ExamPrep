@@ -7,13 +7,15 @@ function MindMapNode({ node, level = 0 }) {
   const type = node.type || 'detail'
 
   return (
-    <div className={`mindmap-node mindmap-level-${level} mindmap-type-${type}`}>
+    <div
+      className={`mindmap-node mindmap-level-${level} mindmap-type-${type}`}
+    >
       <div className="mindmap-card">
         {node.label}
       </div>
 
       {node.children?.length > 0 && (
-        <div className={`mindmap-children mindmap-children-${type}`}>
+        <div className="mindmap-children">
           {node.children.map((child) => (
             <MindMapNode
               key={child.id}
@@ -79,7 +81,6 @@ export default function MindMap({ syllabus, onBack }) {
       </button>
 
       {/* HEADER */}
-
       <div className="mindmap-heading">
         <span className="eyebrow">VISUAL LEARNING</span>
 
@@ -92,7 +93,6 @@ export default function MindMap({ syllabus, onBack }) {
       </div>
 
       {/* TOPIC SELECTOR */}
-
       <section className="mindmap-topic-selector">
 
         <div className="section-heading">
@@ -106,19 +106,16 @@ export default function MindMap({ syllabus, onBack }) {
         </div>
 
         <div className="mindmap-units">
-
           {syllabus?.units?.map((unit) => (
             <div
               className="mindmap-unit"
               key={unit.name}
             >
-
               <div className="mindmap-unit-title">
                 {unit.name}
               </div>
 
               <div className="mindmap-topic-grid">
-
                 {unit.topics?.map((topic) => {
                   const selected =
                     selectedTopic?.name === topic.name &&
@@ -140,15 +137,12 @@ export default function MindMap({ syllabus, onBack }) {
                     </button>
                   )
                 })}
-
               </div>
             </div>
           ))}
-
         </div>
 
         {/* GENERATE */}
-
         {selectedTopic && (
           <div className="mindmap-generate">
 
@@ -182,7 +176,6 @@ export default function MindMap({ syllabus, onBack }) {
       </section>
 
       {/* ERROR */}
-
       {error && (
         <div className="error-banner">
           {error}
@@ -190,7 +183,6 @@ export default function MindMap({ syllabus, onBack }) {
       )}
 
       {/* RESULT */}
-
       {mindmap?.root && (
         <section className="mindmap-result">
 
@@ -219,14 +211,17 @@ export default function MindMap({ syllabus, onBack }) {
 
           </div>
 
-          {/* NEW MAP */}
-
+          {/* ACTUAL MIND MAP */}
           <div className="mindmap-canvas">
 
-            <MindMapNode
-              node={mindmap.root}
-              level={0}
-            />
+            <div className="mindmap-tree">
+
+              <MindMapNode
+                node={mindmap.root}
+                level={0}
+              />
+
+            </div>
 
           </div>
 
