@@ -73,3 +73,26 @@ export function friendlyError(
 
   return error?.message || fallback;
 }
+
+export async function analyzePriorities(syllabus) {
+  const { data } = await api.post("/priority/analyze", syllabus);
+
+  return data;
+}
+
+
+export async function analyzeMindmap(
+  subject,
+  unit,
+  topic,
+  subtopics = [],
+) {
+  const response = await api.post("/mindmap/analyze", {
+    subject,
+    unit,
+    topic,
+    subtopics,
+  });
+
+  return response.data;
+}

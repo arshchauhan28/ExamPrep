@@ -95,13 +95,17 @@ def _request_json(
         raise
 
     except Exception as exc:
-        print(f"AI API error: {exc}")
+        error_type = type(exc).__name__
+        error_message = str(exc)
+
+        print(f"AI API error type: {error_type}")
+        print(f"AI API error: {error_message}")
 
         raise HTTPException(
             status_code=502,
             detail="The AI service is temporarily unavailable. Please try again.",
         ) from exc
-
+    
     try:
         return json.loads(content)
 
@@ -433,3 +437,362 @@ def generate_quiz(
     return {
         "questions": questions,
     }
+    
+    
+    
+    
+    
+    # ---------------------------------------------------------
+# TOPIC PRIORITY ANALYSIS
+# ---------------------------------------------------------
+
+def analyze_topic_priorities(
+    subject: str,
+    units: list,
+) -> dict:
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "subject": {
+                "type": "string",
+            },
+            "units": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                        },
+                        "topics": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": [
+                                            "high",
+                                            "medium",
+                                            "low",
+                                        ],
+                                    },
+                                    "reason": {
+                                        "type": "string",
+                                    },
+                                    "recommended_action": {
+                                        "type": "string",
+                                    },
+                                    "subtopics": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                        },
+                                    },
+                                },
+                                "required": [
+                                    "name",
+                                    "priority",
+                                    "reason",
+                                    "recommended_action",
+                                    "subtopics",
+                                ],
+                                "additionalProperties": False,
+                            },
+                        },
+                    },
+                    "required": [
+                        "name",
+                        "topics",
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": [
+            "subject",
+            "units",
+        ],
+        "additionalProperties": False,
+    }
+
+    system = (
+        "You are an academic exam preparation assistant. "
+        "Analyze the provided syllabus structure and classify each "
+        "topic as high, medium, or low priority for exam preparation. "
+        "Base the classification only on the information provided "
+        "in the syllabus structure. "
+        "Do not claim that a topic frequently appears in exams unless "
+        "such evidence is explicitly provided. "
+        "Consider factors such as conceptual importance, number of "
+        "subtopics, foundational importance, and breadth of the topic. "
+        "For every topic, provide a concise reason and a practical "
+        "recommended study action. "
+        "Preserve all original units, topics, and subtopics."
+    )
+
+    syllabus_structure = {
+        "subject": subject,
+        "units": units,
+    }
+
+    user = (
+        "Analyze the following syllabus and assign a study priority "
+        "to every topic.\n\n"
+        "SYLLABUS STRUCTURE:\n"
+        f"{json.dumps(syllabus_structure, ensure_ascii=False)[:30000]}"
+    )
+
+    data = _request_json(
+        system=system,
+        user=user,
+        schema_name="topic_priority_analysis",
+        schema=schema,
+    )
+
+    if (
+        not isinstance(data, dict)
+        or not isinstance(data.get("subject"), str)
+        or not isinstance(data.get("units"), list)
+    ):
+        raise HTTPException(
+            status_code=502,
+            detail="The AI returned an invalid priority analysis.",
+        )
+
+    return data
+
+
+
+# ---------------------------------------------------------
+# MIND MAP GENERATION
+# ---------------------------------------------------------
+
+def generate_mindmap(
+    subject: str,
+    unit: str,
+    topic: str,
+    subtopics: list,
+) -> dict:
+
+    node_schema = {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+            },
+            "label": {
+                "type": "string",
+            },
+            "type": {
+                "type": "string",
+                "enum": [
+                    "root",
+                    "concept",
+                    "subtopic",
+                    "detail",
+                ],
+            },
+            "children": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                        },
+                        "label": {
+                            "type": "string",
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "root",
+                                "concept",
+                                "subtopic",
+                                "detail",
+                            ],
+                        },
+                        "children": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "root",
+                                            "concept",
+                                            "subtopic",
+                                            "detail",
+                                        ],
+                                    },
+                                    "children": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                },
+                                                "label": {
+                                                    "type": "string",
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "root",
+                                                        "concept",
+                                                        "subtopic",
+                                                        "detail",
+                                                    ],
+                                                },
+                                                "children": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                },
+                                            },
+                                            "required": [
+                                                "id",
+                                                "label",
+                                                "type",
+                                                "children",
+                                            ],
+                                            "additionalProperties": False,
+                                        },
+                                    },
+                                },
+                                "required": [
+                                    "id",
+                                    "label",
+                                    "type",
+                                    "children",
+                                ],
+                                "additionalProperties": False,
+                            },
+                        },
+                    },
+                    "required": [
+                        "id",
+                        "label",
+                        "type",
+                        "children",
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": [
+            "id",
+            "label",
+            "type",
+            "children",
+        ],
+        "additionalProperties": False,
+    }
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "subject": {
+                "type": "string",
+            },
+            "unit": {
+                "type": "string",
+            },
+            "topic": {
+                "type": "string",
+            },
+            "root": node_schema,
+        },
+        "required": [
+            "subject",
+            "unit",
+            "topic",
+            "root",
+        ],
+        "additionalProperties": False,
+    }
+
+    system = (
+        "You are an academic mind map generation assistant. "
+
+        "Create a focused conceptual mind map for ONE academic topic. "
+
+        "The root of the map must be the selected topic. "
+
+        "Organize the topic into useful conceptual branches. "
+
+        "Use the provided subtopics as important branches where appropriate. "
+
+        "You may create meaningful conceptual categories around the topic "
+        "to make the map useful for exam preparation, but do not introduce "
+        "unrelated subjects. "
+
+        "Keep the map concise and readable. "
+
+        "Do not create an enormous tree. "
+
+        "Prefer 3 to 6 major branches under the root. "
+
+        "Each major branch may contain relevant subtopics or details. "
+
+        "Every node must have a unique id. "
+
+        "Use type root for the selected topic, "
+        "concept for major conceptual branches, "
+        "subtopic for syllabus subtopics, "
+        "and detail for supporting concepts."
+    )
+
+    topic_structure = {
+        "subject": subject,
+        "unit": unit,
+        "topic": topic,
+        "subtopics": subtopics,
+    }
+
+    user = (
+        "Create a focused academic mind map for the following topic.\n\n"
+        "SUBJECT:\n"
+        f"{subject}\n\n"
+        "UNIT:\n"
+        f"{unit}\n\n"
+        "SELECTED TOPIC:\n"
+        f"{topic}\n\n"
+        "PROVIDED SUBTOPICS:\n"
+        f"{json.dumps(subtopics, ensure_ascii=False)}\n\n"
+        "TOPIC INFORMATION:\n"
+        f"{json.dumps(topic_structure, ensure_ascii=False)}"
+    )
+
+    data = _request_json(
+        system=system,
+        user=user,
+        schema_name="topic_mindmap_generation",
+        schema=schema,
+    )
+
+    if (
+        not isinstance(data, dict)
+        or not isinstance(data.get("subject"), str)
+        or not isinstance(data.get("unit"), str)
+        or not isinstance(data.get("topic"), str)
+        or not isinstance(data.get("root"), dict)
+    ):
+        raise HTTPException(
+            status_code=502,
+            detail="The AI returned an invalid topic mind map structure.",
+        )
+
+    return data

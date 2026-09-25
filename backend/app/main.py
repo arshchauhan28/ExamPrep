@@ -10,7 +10,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.rate_limiter import limiter
 
-from app.routes import syllabus, notes, quiz
+from app.routes import syllabus, notes, quiz, priority, mindmap
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -69,7 +69,8 @@ app.add_middleware(
 app.include_router(syllabus.router)
 app.include_router(notes.router)
 app.include_router(quiz.router)
-
+app.include_router(priority.router)
+app.include_router(mindmap.router)
 
 # ---------------------------------------------------------
 # HEALTH CHECK

@@ -7,6 +7,7 @@ export default function Dashboard({
   readiness,
   onNotes,
   onQuiz,
+  onMindMap,
   onStartNew,
 }) {
   return (
@@ -24,12 +25,21 @@ export default function Dashboard({
           </p>
         </div>
 
-        <button
-          className="secondary-button"
-          onClick={onStartNew}
-        >
-          Start New Syllabus
-        </button>
+        <div className="page-heading-actions">
+          <button
+            className="primary-button"
+            onClick={onMindMap}
+          >
+            🧠 Generate Mind Map
+          </button>
+
+          <button
+            className="secondary-button"
+            onClick={onStartNew}
+          >
+            Start New Syllabus
+          </button>
+        </div>
       </div>
 
       {readiness && (

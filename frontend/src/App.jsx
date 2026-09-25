@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
+
 import Navbar from './components/Navbar'
+
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Notes from './pages/Notes'
 import Quiz from './pages/Quiz'
 import Results from './pages/Results'
+import MindMap from './pages/MindMap'
+
 import {
   analyzeSyllabus,
   generateNotes,
@@ -43,8 +47,8 @@ function buildReadiness(topicScores, quizzes, totalTopics = 0) {
 
   const score = Math.round(
     avg * 0.45 +
-    coverage * 0.25 +
-    recent * 0.30
+      coverage * 0.25 +
+      recent * 0.30
   )
 
   const entries = Object.entries(topicScores).sort(
@@ -97,6 +101,7 @@ export default function App() {
   )
 
   const [file, setFile] = useState(null)
+
   const [fileName, setFileName] = useState(
     saved.fileName || ''
   )
@@ -129,6 +134,10 @@ export default function App() {
     saved.topicScores || {}
   )
 
+  const [mindMap, setMindMap] = useState(
+    saved.mindMap || null
+  )
+
   const [loading, setLoading] = useState('')
 
   const [error, setError] = useState('')
@@ -143,6 +152,7 @@ export default function App() {
         result,
         quizHistory,
         topicScores,
+        mindMap,
       })
     )
   }, [
@@ -152,6 +162,7 @@ export default function App() {
     result,
     quizHistory,
     topicScores,
+    mindMap,
   ])
 
   const totalTopics =
@@ -190,6 +201,9 @@ export default function App() {
 
       setSyllabus(data)
       setFileName(file.name)
+
+      setMindMap(null)
+
       setPage('dashboard')
     } catch (err) {
       setError(
@@ -212,6 +226,9 @@ export default function App() {
 
       setSyllabus(data)
       setFileName('Pasted syllabus')
+
+      setMindMap(null)
+
       setPage('dashboard')
     } catch (err) {
       setError(
@@ -230,6 +247,14 @@ export default function App() {
     setError('')
     setPage('notes')
   }
+
+  const openMindMap = () => {
+    if (!syllabus) return
+
+    setError('')
+    setPage('mindmap')
+  }
+
 
   const createNotes = async () => {
     setLoading('notes')
@@ -344,6 +369,7 @@ export default function App() {
     setResult(null)
     setQuizHistory([])
     setTopicScores({})
+    setMindMap(null)
     setError('')
     setPage('home')
   }
@@ -351,8 +377,6 @@ export default function App() {
   const dashboard = () => {
     setPage(syllabus ? 'dashboard' : 'home')
   }
-
-  const resultReadiness = readiness
 
   return (
     <div className="app">
@@ -367,7 +391,9 @@ export default function App() {
           <div className="error-banner top-error">
             {error}
 
-            <button onClick={() => setError('')}>
+            <button
+              onClick={() => setError('')}
+            >
               ×
             </button>
           </div>
@@ -388,9 +414,10 @@ export default function App() {
         <Dashboard
           syllabus={syllabus}
           fileName={fileName}
-          readiness={resultReadiness}
+          readiness={readiness}
           onNotes={openNotes}
           onQuiz={openQuiz}
+          onMindMap={openMindMap}
           onStartNew={clearSession}
         />
       )}
@@ -445,6 +472,12 @@ export default function App() {
             })
           }
           onDashboard={dashboard}
+        />
+      )}
+      {page === 'mindmap' && syllabus && (
+        <MindMap
+          syllabus={syllabus}
+          onBack={dashboard}
         />
       )}
     </div>
