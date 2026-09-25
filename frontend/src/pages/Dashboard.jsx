@@ -1,10 +1,14 @@
 import TopicCard from '../components/TopicCard'
 import ReadinessCard from '../components/ReadinessCard'
+import PriorityCard from '../components/PriorityCard'
 
 export default function Dashboard({
   syllabus,
   fileName,
   readiness,
+  priorityAnalysis,
+  priorityLoading,
+  onGeneratePriorities,
   onNotes,
   onQuiz,
   onMindMap,
@@ -54,6 +58,38 @@ export default function Dashboard({
           }}
         />
       )}
+
+      {/* TOPIC PRIORITIZER */}
+      <section className="priority-section">
+        {!priorityAnalysis ? (
+          <div className="priority-section-header">
+            <div>
+              <p className="section-eyebrow">
+                AI TOPIC ANALYSIS
+              </p>
+
+              <h2>What should you study first?</h2>
+
+              <p>
+                Let AI analyze your syllabus and identify
+                which topics deserve more attention.
+              </p>
+            </div>
+
+            <button
+              className="primary-button"
+              onClick={onGeneratePriorities}
+              disabled={priorityLoading}
+            >
+              {priorityLoading
+                ? 'Analyzing...'
+                : 'Analyze Topic Priorities'}
+            </button>
+          </div>
+        ) : (
+          <PriorityCard analysis={priorityAnalysis} />
+        )}
+      </section>
 
       <section className="section-block">
         <div className="section-heading">

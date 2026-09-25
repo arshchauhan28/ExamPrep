@@ -14,6 +14,7 @@ import {
   generateNotes,
   generateQuiz,
   submitQuiz,
+  analyzePriorities,
   friendlyError,
 } from './services/api'
 
@@ -68,6 +69,7 @@ function buildReadiness(topicScores, quizzes, totalTopics = 0) {
 
   const recommended = [
     ...weak.map((topic) => `Review ${topic} notes`),
+
     ...weak
       .slice(0, 2)
       .map((topic) => `Take another quiz on ${topic}`),
@@ -81,14 +83,17 @@ function buildReadiness(topicScores, quizzes, totalTopics = 0) {
 
   return {
     score,
+
     label:
       score >= 80
         ? 'Excellent preparation'
         : score >= 60
           ? 'Good Progress'
           : 'Keep building your foundation',
+
     strong,
     weak,
+
     recommended: recommended.slice(0, 3),
   }
 }
@@ -138,6 +143,10 @@ export default function App() {
     saved.mindMap || null
   )
 
+  const [priorityAnalysis, setPriorityAnalysis] = useState(
+    saved.priorityAnalysis || null
+  )
+
   const [loading, setLoading] = useState('')
 
   const [error, setError] = useState('')
@@ -153,6 +162,7 @@ export default function App() {
         quizHistory,
         topicScores,
         mindMap,
+        priorityAnalysis,
       })
     )
   }, [
@@ -163,6 +173,7 @@ export default function App() {
     quizHistory,
     topicScores,
     mindMap,
+    priorityAnalysis,
   ])
 
   const totalTopics =
@@ -203,6 +214,7 @@ export default function App() {
       setFileName(file.name)
 
       setMindMap(null)
+      setPriorityAnalysis(null)
 
       setPage('dashboard')
     } catch (err) {
@@ -228,6 +240,7 @@ export default function App() {
       setFileName('Pasted syllabus')
 
       setMindMap(null)
+      setPriorityAnalysis(null)
 
       setPage('dashboard')
     } catch (err) {
@@ -255,6 +268,27 @@ export default function App() {
     setPage('mindmap')
   }
 
+  const generatePriorities = async () => {
+    if (!syllabus) return
+
+    setLoading('priority')
+    setError('')
+
+    try {
+      const data = await analyzePriorities(syllabus)
+
+      setPriorityAnalysis(data)
+    } catch (err) {
+      setError(
+        friendlyError(
+          err,
+          'Something went wrong while analyzing topic priorities.'
+        )
+      )
+    } finally {
+      setLoading('')
+    }
+  }
 
   const createNotes = async () => {
     setLoading('notes')
@@ -370,6 +404,7 @@ export default function App() {
     setQuizHistory([])
     setTopicScores({})
     setMindMap(null)
+    setPriorityAnalysis(null)
     setError('')
     setPage('home')
   }
@@ -415,6 +450,9 @@ export default function App() {
           syllabus={syllabus}
           fileName={fileName}
           readiness={readiness}
+          priorityAnalysis={priorityAnalysis}
+          priorityLoading={loading === 'priority'}
+          onGeneratePriorities={generatePriorities}
           onNotes={openNotes}
           onQuiz={openQuiz}
           onMindMap={openMindMap}
@@ -474,6 +512,7 @@ export default function App() {
           onDashboard={dashboard}
         />
       )}
+
       {page === 'mindmap' && syllabus && (
         <MindMap
           syllabus={syllabus}
